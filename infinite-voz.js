@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Infinite Scroll VOZ
 // @namespace    http://vozforums.com/
-// @version      0.2
+// @version      0.4
 // @description  try to take over the world!
 // @author       You
 // @match        https://vozforums.com/forumdisplay.php?f=*
@@ -72,7 +72,6 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
                         updatePageNavigator(loadedDoc.querySelector("div.pagenav").innerHTML);
                         isLoading = false;
                         loadingSpin.className = "hide";
-						
 						//Multiquote init
                         mq_init(fetch_object("posts"));
                     });
