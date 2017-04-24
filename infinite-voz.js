@@ -21,6 +21,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
     var currentPage = +getCurrentPage();
     var lastPage = +getLastPage();
     var isLoading = false;
+    const PAGE_REG = /Page \d+/;
     const BUFFER_HEIGHT = 300; // Magic number, to load next page before reach the end.
     const loadingSpinHTML = '<div class="" style="width: 100px; margin: 0 auto;">Loading... <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="/></div>';
     const loadingSpin = document.createElement("div");
@@ -42,6 +43,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
                     loadingSpin.className = "show";
                     isLoading = true;
                     loadBoxPage(boxId, ++currentPage,function(loadedDoc) {
+                        pushState(currentPage);
                         innerThreadList.innerHTML += '<div>Page' + currentPage + '</div>';
                         innerThreadList.innerHTML += loadedDoc.getElementById('threadbits_forum_' + boxId).innerHTML;
                         lastPage = getLastPage(loadedDoc);
@@ -66,13 +68,14 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
                     loadingSpin.className = "show";
                     isLoading = true;
                     loadThreadPage(threadId, ++currentPage, function(loadedDoc) {
+                        pushState(currentPage);
                         posts.innerHTML += '<div>Page' + currentPage + '</div>';
                         posts.innerHTML += loadedDoc.getElementById('posts').innerHTML;
                         lastPage = getLastPage(loadedDoc);
                         updatePageNavigator(loadedDoc.querySelector("div.pagenav").innerHTML);
                         isLoading = false;
                         loadingSpin.className = "hide";
-		        //Multiquote init
+                        //Multiquote init
                         mq_init(fetch_object("posts"));
                     });
                 }
@@ -80,6 +83,22 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
         });
     }
 
+    function pushState(currentPage) {
+        const query = location.search.slice(1).split('&').reduce((o, v) => { const [key, val] = v.split('='); o[key] = val; return o;}, {});
+        const { origin, pathname } = location;
+
+        query.page = currentPage;
+        const search = Object.keys(query).map(k => `${k}=${query[k]}`).join('&');
+        let path = `${origin}${pathname}?${search}`, title = document.title;
+
+        if (PAGE_REG.test(title)) {
+            title = title.replace(PAGE_REG, 'Page ' + currentPage);
+        } else {
+            title = `${title} Page ${currentPage}`;
+        }
+        history.pushState({}, title, path);
+        document.title = title;
+    }
 
     function isLoadable() {
         return (!isLoading && currentPage < lastPage);
