@@ -72,7 +72,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
                         updatePageNavigator(loadedDoc.querySelector("div.pagenav").innerHTML);
                         isLoading = false;
                         loadingSpin.className = "hide";
-						//Multiquote init
+		        //Multiquote init
                         mq_init(fetch_object("posts"));
                     });
                 }
