@@ -44,7 +44,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
                     isLoading = true;
                     loadBoxPage(boxId, ++currentPage,function(loadedDoc) {
                         pushState(currentPage);
-                        innerThreadList.innerHTML += '<div>Page' + currentPage + '</div>';
+                        innerThreadList.innerHTML += '<tr><td colspan="2">Page ' + currentPage + '</td></tr>';
                         innerThreadList.innerHTML += loadedDoc.getElementById('threadbits_forum_' + boxId).innerHTML;
                         lastPage = getLastPage(loadedDoc);
                         updatePageNavigator(loadedDoc.querySelector("div.pagenav").innerHTML);
