@@ -1,6 +1,8 @@
 # infinite-voz
 Infinite scrolling for Vozforums
 
+* v0.6 add quick reply widget
+* v0.5 able to copy permalink to a comment
 * v0.4 fix multiquote issue
 * v0.3 update URL upon scrolling
 * v0.2 update and polish
