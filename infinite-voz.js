@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Infinite Scroll VOZ
 // @namespace    http://vozforums.com/
-// @version      0.5
+// @version      0.6
 // @description  try to take over the world!
 // @author       You
 // @match        https://vozforums.com/forumdisplay.php?f=*
@@ -85,6 +85,9 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
 
         // Create permalink for the first time
         permalink(document);
+
+        // Add quick reply widget
+        quickReply();
     }
 
     /**
@@ -101,6 +104,22 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
             a.appendChild(a.nextSibling);
           }
         });
+    }
+
+    /**
+     * Add Quick Reply widget.
+     * https://github.com/ReeganExE
+     *
+     * @author ReeganExE
+     */
+    function quickReply() {
+        var replyForm = document.getElementById('qrform');
+        if (replyForm) {
+            if (!document.getElementById('collapseimg_quickreply').src.endsWith('collapsed.gif')) {
+                toggle_collapse('quickreply');
+            }
+            Object.assign(replyForm.style, { position: 'fixed', top: '2px', right: '2px' });
+        }
     }
 
     function pushState(currentPage) {
