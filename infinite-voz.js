@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Infinite Scroll VOZ
 // @namespace    http://vozforums.com/
-// @version      0.6
+// @version      0.7
 // @description  try to take over the world!
 // @author       You
 // @match        https://vozforums.com/forumdisplay.php?f=*
@@ -70,6 +70,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
                     loadThreadPage(threadId, ++currentPage, function(loadedDoc) {
                         pushState(currentPage);
                         permalink(loadedDoc);
+                        removeRedirect(loadedDoc);
                         posts.innerHTML += '<div>Page' + currentPage + '</div>';
                         posts.innerHTML += loadedDoc.getElementById('posts').innerHTML;
                         lastPage = getLastPage(loadedDoc);
@@ -85,6 +86,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
 
         // Create permalink for the first time
         permalink(document);
+        removeRedirect(posts);
 
         // Add quick reply widget
         quickReply();
@@ -103,6 +105,19 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
           if (a.nextSibling) {
             a.appendChild(a.nextSibling);
           }
+        });
+    }
+
+    /**
+     * Remove external link redirection.
+     *
+     * https://github.com/ReeganExE
+     * @param {HtmlDoc} document Document or fragment
+     * @author ReeganExE
+     */
+    function removeRedirect(document) {
+        document.querySelectorAll('a[href^="/redirect/index.php"]').forEach(a => {
+            a.href = decodeURIComponent(a.href.split('link=')[1]);
         });
     }
 
