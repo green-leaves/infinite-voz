@@ -2,11 +2,12 @@
 // ==UserScript==
 // @name         Infinite Scroll VOZ
 // @namespace    http://vozforums.com/
-// @version      0.7
+// @version      0.8
 // @description  try to take over the world!
 // @author       You
 // @match        https://vozforums.com/forumdisplay.php?f=*
 // @match        https://vozforums.com/showthread.php?t=*
+// @match        https://vozforums.com/showthread.php?p=*
 // @match        http://vozforums.com/forumdisplay.php?f=*
 // @match        http://vozforums.com/showthread.php?t=*
 // @grant        GM_addStyle
@@ -60,7 +61,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
     } else if (posts) {
         var postsOffsetTop = getCoords(posts).top;
 
-        var threadId = getParameterByName('t', window.location.href);
+        var threadId = getParameterByName('t', window.location.href) || threadid;
         insertAfter(posts, loadingSpin);
         window.addEventListener('scroll', function() {
             if (window.scrollY + window.innerHeight + BUFFER_HEIGHT >= posts.offsetHeight + postsOffsetTop) {
@@ -159,7 +160,11 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
     }
 
     function getCurrentPage() {
-      return document.querySelector("div.pagenav tbody").querySelectorAll('tr:first-child td.alt2 strong')[0].innerHTML;
+        var pages = document.querySelector("div.pagenav tbody");
+        if (pages) {
+            return pages.querySelectorAll('tr:first-child td.alt2 strong')[0].innerHTML;
+        }
+        return 1;
     }
 
     function updatePageNavigator(newHtmlNav) {
@@ -171,7 +176,13 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
 
     function getLastPage(doc) {
         if (!doc) doc = document;
-        var pageInfo = doc.querySelector("div.pagenav tbody").querySelector('tr:first-child td.vbmenu_control').innerText;
+        var pages = doc.querySelector("div.pagenav tbody");
+
+        if (!pages) {
+            return 1;
+        }
+
+        var pageInfo = pages.querySelector('tr:first-child td.vbmenu_control').innerText;
         var pageInfoWords = pageInfo.split(" ");
         return (pageInfoWords[pageInfoWords.length - 1]);
     }
