@@ -1,6 +1,9 @@
 # infinite-voz
 Infinite scrolling for Vozforums
 
+* v0.8
+  * added: support Posts page: `showthread.php?p=*`
+  * fixed: error in console on threads that have only one page
 * v0.7 remove external link redirection
 * v0.6 add quick reply widget
 * v0.5 able to copy permalink to a comment
