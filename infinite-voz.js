@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Infinite Scroll VOZ
 // @namespace    http://vozforums.com/
-// @version      0.8
+// @version      1.0
 // @description  try to take over the world!
 // @author       You
 // @match        https://vozforums.com/forumdisplay.php?f=*
@@ -91,6 +91,65 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
 
         // Add quick reply widget
         quickReply();
+
+        bindShortcutKey();
+    }
+
+    /**
+     * Add Esc and F1 shortcut.
+     * F1: Show quick reply box with quoted comments
+     * Esc: to hide quick reply box
+     *
+     * @author ReeganExE https://github.com/ReeganExE
+     */
+    function bindShortcutKey() {
+        const textbox = document.querySelector('textarea[name="message"]');
+        const reply = document.querySelector('a[href^="newreply.php"]'); // find the Reply button and take its href
+
+        if (!textbox || !reply) {
+            return;
+        }
+
+        const replyHref = reply.href;
+
+        // Press Esc to hide the quick reply box
+        textbox.addEventListener('keydown', e => {
+            e.keyCode === 27 && toggle_collapse('quickreply');
+        }, false);
+
+        // Press F1 to show replybox with quotes
+        document.addEventListener('keydown', e => {
+            if (e.keyCode !== 112) { // F1
+                return;
+            }
+
+            e.preventDefault();
+
+            // Show quick reply box
+            toggle_collapse('quickreply');
+            textbox.focus();
+
+            // Load quotes
+            const quotes = fetch_cookie("vbulletin_multiquote");
+
+            if (quotes) { // check whether user has quoted
+                textbox.disabled = true;
+                loadQuotes(replyHref, q => {
+                    let val = textbox.value;
+                    if (q) {
+                        val = val ? (val + '\n' + q) : q;
+                    }
+
+                    textbox.value = val;
+                    textbox.disabled = false;
+                    textbox.focus();
+
+                    // Reset quotes
+                    document.cookie = 'vbulletin_multiquote=;';
+                    quotes.split(',').forEach(id => change_mq_image(id, false));
+                }, () => (textbox.disabled = false));
+            }
+        }, false);
     }
 
     /**
@@ -217,6 +276,15 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
         return { top: Math.round(top), left: Math.round(left) };
     }
 
+    function loadQuotes(href, callback, onerror) {
+        ajax('GET', href, loadSuccess, onerror);
+        function loadSuccess(xhr) {
+            const doc = parser.parseFromString(xhr.responseText, "text/html");
+            const txt = doc.querySelector('textarea[name="message"]');
+            callback(txt ? txt.value : txt);
+        }
+    }
+
     function loadBoxPage(boxId, pageNo, callback) {
         ajax('GET', 'https://vozforums.com/forumdisplay.php?f=' + boxId + '&order=desc&page=' + pageNo, loadSuccess);
         function loadSuccess(xhr) {
@@ -232,7 +300,7 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
         }
     }
 
-    function ajax(method, url, callback) {
+    function ajax(method, url, callback, onerror) {
         var xhr = new XMLHttpRequest();
 		xhr.open(method, url);
 		xhr.send(null);
@@ -246,7 +314,8 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
 					console.log('Error: ' + xhr.status); // An error occurred during the request.
 				}
 			}
-		};
+        };
+        xhr.onerror = onerror;
     }
 
     function insertAfter(referenceNode, newNode) {

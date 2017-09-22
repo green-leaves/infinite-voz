@@ -1,6 +1,9 @@
 # infinite-voz
 Infinite scrolling for Vozforums
 
+* v1.0 Shortcut keys
+  * Press F1 key for replying the topic (quotes automatically loaded)
+  * Press Esc (or F1) to hide (collape) the quick reply box
 * v0.8
   * added: support Posts page: `showthread.php?p=*`
   * fixed: error in console on threads that have only one page
