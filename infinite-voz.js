@@ -91,8 +91,21 @@ GM_addStyle(".hide {display: none} .show{display: block} ");
 
         // Add quick reply widget
         quickReply();
+        setFixedPageNavigation();
 
         bindShortcutKey();
+    }
+
+    function setFixedPageNavigation() {
+        const pagenav = document.querySelectorAll('.pagenav');
+        if (pagenav.length) {
+            // pagenav[1] => the bottom pagenav
+            Object.assign(pagenav[1].style, {
+                position: 'fixed',
+                bottom: 0,
+                right: 0
+            });
+        }
     }
 
     /**
